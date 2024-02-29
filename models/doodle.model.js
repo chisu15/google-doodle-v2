@@ -21,15 +21,15 @@ const doodleSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
         },
-        createdAt: {
-            type: Date,
-            default: Date.now
-        }
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     },
     updatedBy: {
         user_id: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+            ref: 'Users'
         },
         updatedAt: Date
     },
