@@ -5,11 +5,11 @@ const doodleSchema = new mongoose.Schema({
     image: String,
     description: String,
     likes: {
-        type: BigInt,
+        type: Number,
         default: 0
     },
     views: {
-        type: BigInt,
+        type: Number,
         default: 0
     },
     doodle_category_id: [{

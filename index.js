@@ -5,12 +5,11 @@ require('dotenv').config();
 
 const port = process.env.PORT;
 
-db.connect()
-app.use(express.json())
-app.get('/', (req, res) => {
-    res.status(200);
-});
+db.connect();
+// ROUTE
+const route = require('./routes/index.route')
+route(app);
 
 app.listen(port, () => {
-    console.log(`Server started on port`);
+    console.log(`Server started on port`, port);
 });
