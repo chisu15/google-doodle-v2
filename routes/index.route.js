@@ -6,6 +6,6 @@ const bodyParser = require('body-parser');
 module.exports = (app) =>
 {
     app.use(bodyParser.json())
-    app.use("/", homeRoutes);
-    app.use("/doodle", doodleRoute);
+    app.use("/api/v1", homeRoutes);
+    app.use("/api/v1/doodle", doodleRoute);
 }
