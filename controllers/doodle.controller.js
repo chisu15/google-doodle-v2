@@ -29,7 +29,8 @@ module.exports.detail = async(req, res)=>{
 // CREATE
 module.exports.create = async(req, res)=>{
     try {
-        const doodle = Doodle.create(req.body)
+        const doodle = new Doodle(req.body);
+        const data = await doodle.save();
         res.json({
             code: 200,
             message:"Tạo thành công!"
