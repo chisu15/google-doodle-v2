@@ -1,5 +1,6 @@
 const express = require('express');
 const Doodle = require('../models/doodle.model');
+const slugify = require('slugify');
 // VIEW
 module.exports.index = async(req, res)=>{
     try {
@@ -38,8 +39,10 @@ module.exports.create = async(req, res)=>{
     } catch (error) {
         res.json({
             code: 400,
-            message: "Tạo sản phẩm thất bại"
+            message: "Tạo sản phẩm thất bại",
+            error: error.message
         })
+
     }
 }
 // EDIT
