@@ -49,7 +49,7 @@ module.exports.create = async(req, res)=>{
 module.exports.edit = async(req, res)=>{
     try {
         const {id} = req.params;
-        const doodle = await Doodle.findByIdAndUpdate(id, req.body);
+        const doodle = await Doodle.updateOne({_id: id}, req.body);
         if (!doodle) {
             return res.status(404).json({
                 message: `Cannot find any doodle with ID: ${id}`
@@ -62,7 +62,8 @@ module.exports.edit = async(req, res)=>{
     } catch (error) {
         res.json({
             code: 400,
-            message: "Cập nhật thất bại!"
+            message: "Cập nhật thất bại!",
+            error: error.message
         })
     }
 }

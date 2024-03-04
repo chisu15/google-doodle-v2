@@ -1,8 +1,14 @@
 const mongoose = require('mongoose')
-const slugify = require('slugify');
+const AutoSlug = require('../middlewares/slugify')
 const doodleSchema = new mongoose.Schema({
-    title: String,
-    image: String,
+    title: {
+        type: String,
+        require
+    },
+    image: {
+        type: String,
+        require
+    },
     description: String,
     likes: {
         type: Number,
@@ -41,12 +47,9 @@ const doodleSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
-doodleSchema.pre('save', function (next){
-    this.slug = slugify(this.title, {
-        lower: true
-    })
-    next();
-})
+AutoSlug('save',doodleSchema);
+AutoSlug('updateOne', doodleSchema);
+
 
 const Doodle = mongoose.model('doodle', doodleSchema)
 
