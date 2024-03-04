@@ -84,3 +84,20 @@ module.exports.delete = async(req, res)=>{
     }
 
 }
+// SET TIME
+module.exports.setTime = async(req, res)=>{
+    try {
+        const {id} = req.params;
+        const doodle = await Doodle.updateOne({_id: id}, req.body)
+        res.json({
+            code: 200,
+            message: "Cài đặt thời gian thành công!"
+        })
+    } catch (error) {
+        res.json({
+            code: 400,
+            message: "Cài đặt thất bại!",
+            error: error.message
+        })
+    }
+}

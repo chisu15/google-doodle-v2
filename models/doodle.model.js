@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const AutoSlug = require('../middlewares/slugify')
+const slugify = require('slugify')
 const doodleSchema = new mongoose.Schema({
     title: {
         type: String,
@@ -39,6 +39,8 @@ const doodleSchema = new mongoose.Schema({
         },
         updatedAt: Date
     },
+    timeStart: Date,
+    timeEnd: Date,
     slug: {
         type: String,
         slug: "title",
@@ -47,9 +49,24 @@ const doodleSchema = new mongoose.Schema({
 }, {
     timestamps: true
 })
-AutoSlug('save',doodleSchema);
-AutoSlug('updateOne', doodleSchema);
-
+doodleSchema.pre('save', function (next) {
+    let title = this.title;
+    if (title && typeof title === 'string') {
+        this.slug = slugify(title, {
+            lower: true
+        })
+        next();
+    }
+})
+doodleSchema.pre('updateOne', function (next) {
+    let title = this._update.title;
+    if (title && typeof title === 'string') {
+        this._update.$set.slug = slugify(title, {
+            lower: true
+        });
+        next();
+    }
+})
 
 const Doodle = mongoose.model('doodle', doodleSchema)
 
