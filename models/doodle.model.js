@@ -32,15 +32,17 @@ const doodleSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
-    updatedBy: {
-        user_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Users'
-        },
-        updatedAt: Date
+    updatedAt: {
+        type: Date
     },
-    timeStart: Date,
-    timeEnd: Date,
+    timeStart: {
+        type: Date,
+        default: "0"
+    },
+    timeEnd: {
+        type: Date,
+        default: null
+    },
     slug: {
         type: String,
         slug: "title",
@@ -69,5 +71,4 @@ doodleSchema.pre('updateOne', function (next) {
 })
 
 const Doodle = mongoose.model('doodle', doodleSchema)
-
 module.exports = Doodle;

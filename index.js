@@ -1,11 +1,22 @@
 const express = require('express');
+const cors = require("cors");
+
 const app = express();
 const db = require('./config/db')
-require('dotenv').config();
+db.connect();
 
+
+require('dotenv').config();
 const port = process.env.PORT;
 
-db.connect();
+// const corsOptions = {
+//     origin: "http://localhost:3000", // change this to your react app url
+// }
+// app.use(cors(corsOptions));
+app.use(cors());
+
+app.use(bodyParser.json())
+
 // ROUTE
 const route = require('./routes/index.route')
 route(app);

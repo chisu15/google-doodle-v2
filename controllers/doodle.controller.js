@@ -1,8 +1,8 @@
 const express = require('express');
 const Doodle = require('../models/doodle.model');
-const slugify = require('slugify');
+const moment = require('moment')
 // VIEW
-module.exports.index = async(req, res)=>{
+module.exports.index = async (req, res) => {
     try {
         const doodles = await Doodle.find();
         // console.log(req.body); 
@@ -15,9 +15,11 @@ module.exports.index = async(req, res)=>{
     }
 }
 // DETAIL
-module.exports.detail = async(req, res)=>{
+module.exports.detail = async (req, res) => {
     try {
-        const {id} = req.params;
+        const {
+            id
+        } = req.params;
         const doodle = await Doodle.findById(id);
         res.status(200).json(doodle);
     } catch (error) {
@@ -28,13 +30,13 @@ module.exports.detail = async(req, res)=>{
     }
 }
 // CREATE
-module.exports.create = async(req, res)=>{
+module.exports.create = async (req, res) => {
     try {
         const doodle = new Doodle(req.body);
         const data = await doodle.save();
         res.json({
             code: 200,
-            message:"Tạo thành công!"
+            message: "Tạo thành công!"
         })
     } catch (error) {
         res.json({
@@ -46,10 +48,14 @@ module.exports.create = async(req, res)=>{
     }
 }
 // EDIT
-module.exports.edit = async(req, res)=>{
+module.exports.edit = async (req, res) => {
     try {
-        const {id} = req.params;
-        const doodle = await Doodle.updateOne({_id: id}, req.body);
+        const {
+            id
+        } = req.params;
+        const doodle = await Doodle.updateOne({_id: id}, req.body, {
+            new: true
+        });
         if (!doodle) {
             return res.status(404).json({
                 message: `Cannot find any doodle with ID: ${id}`
@@ -68,9 +74,11 @@ module.exports.edit = async(req, res)=>{
     }
 }
 // DELETE
-module.exports.delete = async(req, res)=>{
+module.exports.delete = async (req, res) => {
     try {
-        const {id} = req.params;
+        const {
+            id
+        } = req.params;
         const doodle = await Doodle.findByIdAndDelete(id);
         res.json({
             code: 200,
@@ -83,21 +91,4 @@ module.exports.delete = async(req, res)=>{
         })
     }
 
-}
-// SET TIME
-module.exports.setTime = async(req, res)=>{
-    try {
-        const {id} = req.params;
-        const doodle = await Doodle.updateOne({_id: id}, req.body)
-        res.json({
-            code: 200,
-            message: "Cài đặt thời gian thành công!"
-        })
-    } catch (error) {
-        res.json({
-            code: 400,
-            message: "Cài đặt thất bại!",
-            error: error.message
-        })
-    }
 }
