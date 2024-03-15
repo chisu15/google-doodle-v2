@@ -1,10 +1,12 @@
 const express = require('express');
 const homeRoutes = require('./home.route');
 const doodleRoute = require('./doodle.route');
-const bodyParser = require('body-parser');
+const userRoute = require('./user.route');
 
 module.exports = (app) =>
 {
-    app.use("/api/v1", homeRoutes);
-    app.use("/api/v1/doodle", doodleRoute);
+    const version = "/api/v1"
+    app.use(version, homeRoutes);
+    app.use(version + "/doodle", doodleRoute);
+    app.use(version + "/users", userRoute)
 }

@@ -1,6 +1,6 @@
-const express = require('express');
+
 const Doodle = require('../models/doodle.model');
-const moment = require('moment')
+
 // VIEW
 module.exports.index = async (req, res) => {
     try {

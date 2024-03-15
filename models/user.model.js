@@ -1,28 +1,29 @@
 const mongoose = require("mongoose");
-const generate = require("../helpers/generate");
+
 
 const userSchema = new mongoose.Schema({
     fullName: String,
     email: String,
     password: String,
-    token: {
-        type: String,
-        default: generate.generateRandomString(20)
-    },
+    token: String,
     phone: String,
     avatar: String,
     status: String,
+    timeDoodleStart: Date,
+    timeDoodleEnd: Date,
     favorite: [{
-        doodle_id: String,
-        ref: 'doodles'
+        doodle_id: mongoose.Schema.Types.ObjectId
     }],
     doodleCreated: [{
-        doodle_id: String,
-        ref: 'doodles'
-    }]
+        doodle_id: mongoose.Schema.Types.ObjectId
+    }],
+    deleted: {
+        type: Boolean,
+        default: false
+    }
 }, {
     timestamps: true,
 })
 
-const User = mongoose.model("User", userSchema, "Users");
-module.exports = User;
+const Users = mongoose.model("user", userSchema, "users");
+module.exports = Users;

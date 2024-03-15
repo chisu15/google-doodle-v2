@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Doodle = require('../models/doodle.model');
+
 const controller = require("../controllers/doodle.controller")
 
 router.get('/', controller.index);
