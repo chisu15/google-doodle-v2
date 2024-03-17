@@ -3,6 +3,7 @@ const mongoose = require('mongoose')
 const doodleCollectionSchema = mongoose.Schema({
     title: String,
     description: String,
+    views: Number,
     doodles: [{
         doodle_id: mongoose.Schema.Types.ObjectId
     }],    
