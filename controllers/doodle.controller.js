@@ -40,15 +40,6 @@ module.exports.index = async (req, res) => {
         const doodles = await Doodle.find();
         // console.log(req.body); 
         // res.send(req.body);
-        const getParams = {
-            Bucket: bucketName,
-            Key: '27. 05-12.png',
-        }
-        const commandGet = new GetObjectCommand(getParams);
-        const url = await getSignedUrl(s3, commandGet, {
-            expiresIn: 60
-        })
-        console.log(url);
         res.status(200).json(doodles);
     } catch (error) {
         res.status(500).json({
@@ -56,7 +47,7 @@ module.exports.index = async (req, res) => {
         });
     }
 }
-// [GET] DETAIL
+// DETAIL
 module.exports.detail = async (req, res) => {
     try {
         const {
@@ -71,35 +62,11 @@ module.exports.detail = async (req, res) => {
         });
     }
 }
-// [POST] CREATE
+// CREATE
 module.exports.create = async (req, res) => {
     try {
-        // UPLOAD IMAGE TO AWS S3
-        const imageName = generate.generateRandomString(32);
-        const paramsSend = {
-            Bucket: bucketName,
-            Key: imageName,
-            Body: req.file.buffer,
-            ContentType: req.file.mimetype
-        }
-        const commandPut = new PutObjectCommand(paramsSend);
-        await s3.send(commandPut);
-
-        // GET IMAGE FROM AWS S3
-        const getParams = {
-            Bucket: bucketName,
-            Key: imageName,
-        }
-        const commandGet = new GetObjectCommand(getParams);
-        const url = await getSignedUrl(s3, commandGet, {
-            expiresIn: 60
-        })
-
-        const doodle = new Doodle({
-            ...req.body,
-            image: url
-        });
-        await doodle.save();
+        const doodle = new Doodle(req.body);
+        const data = await doodle.save();
         res.json({
             code: 200,
             message: "Tạo thành công!"
@@ -113,15 +80,13 @@ module.exports.create = async (req, res) => {
 
     }
 }
-// [PATCH] EDIT
+// EDIT
 module.exports.edit = async (req, res) => {
     try {
         const {
             id
         } = req.params;
-        const doodle = await Doodle.updateOne({
-            _id: id
-        }, req.body, {
+        const doodle = await Doodle.updateOne({_id: id}, req.body, {
             new: true
         });
         if (!doodle) {
@@ -141,22 +106,83 @@ module.exports.edit = async (req, res) => {
         })
     }
 }
-// [DELETE] DELETE
+// DELETE
 module.exports.delete = async (req, res) => {
-    try {
-        const {
-            id
-        } = req.params;
-        const doodle = await Doodle.findByIdAndDelete(id);
-        res.json({
-            code: 200,
-            message: "Xóa thành công!"
-        })
-    } catch (error) {
-        res.json({
-            code: 400,
-            message: "Xóa thất bại!"
-        })
-    }
+  try {
+    const { id } = req.params;
+    const doodle = await Doodle.findByIdAndDelete(id);
+    res.json({
+      code: 200,
+      message: 'Xóa thành công!',
+    });
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: 'Xóa thất bại!',
+    });
+  }
+};
 
-}
+//POPULAR
+module.exports.popular = async (req, res) => {
+  try {
+    const doodleList = await Doodle.aggregate([
+      {
+        $sort: { views: -1 },
+      },
+      {
+        $limit: 12,
+      },
+    ]);
+    res.status(200).json(doodleList);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+//NEWEST
+module.exports.newest = async (req, res) => {
+  try {
+    const doodleList = await Doodle.aggregate([
+      {
+        $sort: { timecreatedAt: -1 },
+      },
+      {
+        $limit: 12,
+      },
+    ]);
+    res.status(200).json(doodleList);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+//SPECIAL
+module.exports.special = async (req, res) => {
+  try {
+    const currentDate = new Date(Date.now());
+    const currentMonth = (currentDate.getMonth() + 1).toString();
+    const doodleList = await Doodle.aggregate([
+      {
+        $unwind: '$doodle_category_id',
+      },
+      {
+        $match: {
+          doodle_category_id: currentMonth,
+        },
+      },
+      {
+        $limit: 6,
+      },
+    ]);
+    res.status(200).json(doodleList);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};

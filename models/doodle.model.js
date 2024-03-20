@@ -1,74 +1,79 @@
-const mongoose = require('mongoose')
-const slugify = require('slugify')
-const doodleSchema = new mongoose.Schema({
+const mongoose = require('mongoose');
+const slugify = require('slugify');
+const doodleSchema = new mongoose.Schema(
+  {
     title: {
-        type: String,
-        require
+      type: String,
+      require,
     },
     image: {
-        type: String,
-        require
+      type: String,
+      require,
     },
     description: String,
     likes: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
     views: {
-        type: Number,
-        default: 0
+      type: Number,
+      default: 0,
     },
-    doodle_category_id: [{
+    doodle_category_id: [
+      {
         type: String,
-        default: ""
-    }],
+        default: '',
+      },
+    ],
     uploadBy: {
-        user_id: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
-        },
+      user_id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
     },
     createdAt: {
-        type: Date,
-        default: Date.now
+      type: Date,
+      default: Date.now,
     },
     updatedAt: {
-        type: Date
+      type: Date,
     },
     timeStart: {
-        type: Date,
-        default: "0"
+      type: Date,
+      default: '0',
     },
     timeEnd: {
-        type: Date,
-        default: null
+      type: Date,
+      default: null,
     },
     slug: {
-        type: String,
-        slug: "title",
-        unique: true
-    }
-}, {
-    timestamps: true
-})
+      type: String,
+      slug: 'title',
+      unique: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 doodleSchema.pre('save', function (next) {
-    let title = this.title;
-    if (title && typeof title === 'string') {
-        this.slug = slugify(title, {
-            lower: true
-        })
-        next();
-    }
-})
+  let title = this.title;
+  if (title && typeof title === 'string') {
+    this.slug = slugify(title, {
+      lower: true,
+    });
+    next();
+  }
+});
 doodleSchema.pre('updateOne', function (next) {
-    let title = this._update.title;
-    if (title && typeof title === 'string') {
-        this._update.$set.slug = slugify(title, {
-            lower: true
-        });
-        next();
-    }
-})
+  let title = this._update.title;
+  if (title && typeof title === 'string') {
+    this._update.$set.slug = slugify(title, {
+      lower: true,
+    });
+    next();
+  }
+});
 
-const Doodle = mongoose.model('doodle', doodleSchema)
+const Doodle = mongoose.model('doodle', doodleSchema);
 module.exports = Doodle;
