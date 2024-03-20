@@ -7,13 +7,6 @@ const app = express();
 const port = process.env.PORT;
 const db = require('./config/db')
 db.connect();
-
-
-
-// const corsOptions = {
-//     origin: "http://localhost:3000", // change this to your react app url
-// }
-// app.use(cors(corsOptions));
 app.use(cors());
 
 app.use(bodyParser.json())
