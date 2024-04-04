@@ -1,5 +1,6 @@
 const Doodle = require('../models/doodle.model');
-const {S3Client,
+const {
+    S3Client,
     PutObjectCommand,
     CreateBucketCommand,
     DeleteObjectCommand,
@@ -119,14 +120,40 @@ module.exports.edit = async (req, res) => {
         const {
             id
         } = req.params;
+
+        const imageName = generate.generateRandomString(32);
+        const paramsSend = {
+            Bucket: bucketName,
+            Key: imageName,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype
+        }
+        const commandPut = new PutObjectCommand(paramsSend);
+        await s3.send(commandPut);
+
+        // GET IMAGE FROM AWS S3
+        const getParams = {
+            Bucket: bucketName,
+            Key: imageName,
+        }
+        const commandGet = new GetObjectCommand(getParams);
+        const url = await getSignedUrl(s3, commandGet, {
+            expiresIn: 60
+        })
+
+        console.log(req.body);
+
         const doodle = await Doodle.updateOne({
             _id: id
-        }, req.body, {
+        }, {
+            ...req.body,
+            image: url
+        }, {
             new: true
         });
         if (!doodle) {
             return res.status(404).json({
-                message: `Cannot find any doodle with ID: ${id}`
+                message: `Không tìm thấy doodle với ID: ${id}`
             })
         }
         res.json({
@@ -160,66 +187,67 @@ module.exports.delete = async (req, res) => {
     }
 
 }
-//POPULAR
+// [GET]POPULAR
 module.exports.popular = async (req, res) => {
-  try {
-    const doodleList = await Doodle.aggregate([
-      {
-        $sort: { views: -1 },
-      },
-      {
-        $limit: 12,
-      },
-    ]);
-    res.status(200).json(doodleList);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+    try {
+        const doodleList = await Doodle.aggregate([{
+                $sort: {
+                    views: -1
+                },
+            },
+            {
+                $limit: 12,
+            },
+        ]);
+        res.status(200).json(doodleList);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
 };
 
-//NEWEST
+// [GET]NEWEST
 module.exports.newest = async (req, res) => {
-  try {
-    const doodleList = await Doodle.aggregate([
-      {
-        $sort: { timecreatedAt: -1 },
-      },
-      {
-        $limit: 12,
-      },
-    ]);
-    res.status(200).json(doodleList);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+    try {
+        const doodleList = await Doodle.aggregate([{
+                $sort: {
+                    timecreatedAt: -1
+                },
+            },
+            {
+                $limit: 12,
+            },
+        ]);
+        res.status(200).json(doodleList);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
 };
 
-//SPECIAL
+// [GET]SPECIAL
 module.exports.special = async (req, res) => {
-  try {
-    const currentDate = new Date(Date.now());
-    const currentMonth = (currentDate.getMonth() + 1).toString();
-    const doodleList = await Doodle.aggregate([
-      {
-        $unwind: '$doodle_category_id',
-      },
-      {
-        $match: {
-          doodle_category_id: currentMonth,
-        },
-      },
-      {
-        $limit: 6,
-      },
-    ]);
-    res.status(200).json(doodleList);
-  } catch (error) {
-    res.status(500).json({
-      message: error.message,
-    });
-  }
+    try {
+        const currentDate = new Date(Date.now());
+        const currentMonth = (currentDate.getMonth() + 1).toString();
+        const doodleList = await Doodle.aggregate([{
+                $unwind: '$doodle_category_id',
+            },
+            {
+                $match: {
+                    doodle_category_id: currentMonth,
+                },
+            },
+            {
+                $limit: 6,
+            },
+        ]);
+        res.status(200).json(doodleList);
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+        });
+    }
 };
