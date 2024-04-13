@@ -8,8 +8,9 @@ const upload = multer({storage: storage});
 const controller = require('../controllers/doodle.controller');
 
 router.get('/', controller.index);
+router.get('/getLink/:key', controller.getLink);
 router.get('/detail/:id', controller.detail);
-router.post('/create', upload.single('image'), controller.create);
+router.post('/create/:key', upload.single('image'), controller.create);
 router.patch('/edit/:id', controller.edit);
 router.delete('/:id', controller.delete);
 
