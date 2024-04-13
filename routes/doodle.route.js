@@ -10,7 +10,7 @@ const controller = require('../controllers/doodle.controller');
 router.get('/', controller.index);
 router.get('/detail/:id', controller.detail);
 router.post('/create/', upload.single('file'), controller.create);
-// router.patch('/edit/:id', controller.edit);
+router.patch('/edit/:id', upload.single('file'), controller.edit);
 router.delete('/:id', controller.delete);
 
 router.get('/popular', controller.popular);

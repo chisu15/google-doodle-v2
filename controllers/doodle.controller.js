@@ -13,10 +13,10 @@ require('dotenv').config();
 
 
 cloudinary.v2.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.API_KEY,
-  api_secret: process.env.API_SECRET,
-  secure: true,
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.API_KEY,
+    api_secret: process.env.API_SECRET,
+    secure: true,
 });
 
 // [GET] VIEW
@@ -50,22 +50,19 @@ module.exports.detail = async (req, res) => {
 // [POST] CREATE
 module.exports.create = async (req, res) => {
     try {
-        // const {key} = req.params;
-        const result = await cloudinary.uploader.upload(file.path);
-        // const url = cloudinary.url(`${key}`)
-        const url = result.url;
-        console.log(url);
+        const result = await cloudinary.uploader.upload(req.file.path);
+        const imageUrl = result.secure_url;
+        console.log(imageUrl);
         const doodle = new Doodle({
             ...req.body,
-            image: url,
+            image: imageUrl,
         });
         await doodle.save();
         res.json({
             code: 200,
             message: "Tạo thành công!"
         })
-    }
-    catch (error) {
+    } catch (error) {
         res.json({
             code: 400,
             message: "Tạo sản phẩm thất bại",
@@ -77,36 +74,40 @@ module.exports.create = async (req, res) => {
 // [PATCH] EDIT
 module.exports.edit = async (req, res) => {
     try {
-        const {
-            id
-        } = req.params;
-        console.log(req.body);
-        const doodle = await Doodle.updateOne({
-            _id: id
-        }, {
-            ...req.body,
-            image: ""
-            // image: url
-        }, {
-            new: true
-        });
+        const { id } = req.params;
+        const doodle = await Doodle.findById(id);
+        
         if (!doodle) {
             return res.status(404).json({
                 message: `Không tìm thấy doodle với ID: ${id}`
-            })
+            });
         }
+
+        let imageUrl = null;
+
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path);
+            imageUrl = result.secure_url;
+        }
+
+        // Cập nhật thông tin của doodle
+        const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
+            ...req.body,
+            image: imageUrl ? imageUrl : doodle.image
+        }, { new: true });
+
         res.json({
             code: 200,
             message: "Cập nhật thành công!"
-        })
+        });
     } catch (error) {
-        res.json({
+        res.status(400).json({
             code: 400,
             message: "Cập nhật thất bại!",
             error: error.message
-        })
+        });
     }
-}
+};
 // [DELETE] DELETE
 module.exports.delete = async (req, res) => {
     try {
