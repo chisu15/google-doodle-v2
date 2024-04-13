@@ -3,15 +3,14 @@ const router = express.Router();
 const multer = require('multer');
 
 const storage = multer.memoryStorage();
-const upload = multer({storage: storage});
+const upload = multer();
 
 const controller = require('../controllers/doodle.controller');
 
 router.get('/', controller.index);
-router.get('/getLink/:key', controller.getLink);
 router.get('/detail/:id', controller.detail);
-router.post('/create/:key', upload.single('image'), controller.create);
-router.patch('/edit/:id', controller.edit);
+router.post('/create/', upload.single('file'), controller.create);
+// router.patch('/edit/:id', controller.edit);
 router.delete('/:id', controller.delete);
 
 router.get('/popular', controller.popular);

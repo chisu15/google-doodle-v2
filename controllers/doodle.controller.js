@@ -7,10 +7,17 @@ const multer = require('multer');
 const generate = require('../helpers/generate');
 
 const storage = multer.memoryStorage();
-const upload = multer({
-    storage: storage
-});
+const upload = multer();
+const cloudinary = require('cloudinary');
+require('dotenv').config();
 
+
+cloudinary.v2.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+  secure: true,
+});
 
 // [GET] VIEW
 module.exports.index = async (req, res) => {
@@ -43,9 +50,14 @@ module.exports.detail = async (req, res) => {
 // [POST] CREATE
 module.exports.create = async (req, res) => {
     try {
+        // const {key} = req.params;
+        const result = await cloudinary.uploader.upload(file.path);
+        // const url = cloudinary.url(`${key}`)
+        const url = result.url;
+        console.log(url);
         const doodle = new Doodle({
             ...req.body,
-            image: url
+            image: url,
         });
         await doodle.save();
         res.json({
@@ -69,7 +81,6 @@ module.exports.edit = async (req, res) => {
             id
         } = req.params;
         console.log(req.body);
-
         const doodle = await Doodle.updateOne({
             _id: id
         }, {
