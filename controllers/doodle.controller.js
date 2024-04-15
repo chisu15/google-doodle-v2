@@ -1,8 +1,5 @@
 const Doodle = require('../models/doodle.model');
-const {
-    access,
-    link
-} = require('fs');
+const fs = require('fs');
 const multer = require('multer');
 const generate = require('../helpers/generate');
 
@@ -10,6 +7,9 @@ const storage = multer.memoryStorage();
 const upload = multer();
 const cloudinary = require('cloudinary');
 require('dotenv').config();
+const { resolve } = require('path');
+const path = require('path');
+
 
 
 cloudinary.v2.config({
@@ -47,21 +47,46 @@ module.exports.detail = async (req, res) => {
         });
     }
 }
+
 // [POST] CREATE
 module.exports.create = async (req, res) => {
     try {
-        const result = await cloudinary.uploader.upload(req.file.path);
-        const imageUrl = result.secure_url;
-        console.log(imageUrl);
-        const doodle = new Doodle({
-            ...req.body,
-            image: imageUrl,
+        if (!req.file) {
+            return res.status(400).json({
+                code: 400,
+                message: "Vui lòng chọn một tệp hình ảnh"
+            });
+        }
+        const imagePath = path.join(__dirname, "../public/images/", req.file.filename);
+        console.log("Path: ", imagePath);
+        const checkDoodle = await Doodle.findOne({
+            title: req.body.title
         });
-        await doodle.save();
-        res.json({
-            code: 200,
-            message: "Tạo thành công!"
-        })
+        if(checkDoodle) {
+            return res.status(400).json({
+                code: 400,
+                message: "Tên doodle đã tồn tại!"
+            });
+        }
+        else{
+            const result = await cloudinary.v2.uploader.upload(imagePath);
+            const imageUrl = result.secure_url;
+            fs.unlink(imagePath,  function (err, data) {
+                if (err) throw err;
+                console.log('Delete file successfully');
+            });
+            console.log(imageUrl);
+            const doodle = new Doodle({
+                ...req.body,
+                image: imageUrl,
+            });
+            await doodle.save();
+    
+            res.json({
+                code: 200,
+                message: "Tạo thành công!"
+            })
+        }
     } catch (error) {
         res.json({
             code: 400,
@@ -74,27 +99,34 @@ module.exports.create = async (req, res) => {
 // [PATCH] EDIT
 module.exports.edit = async (req, res) => {
     try {
-        const { id } = req.params;
+        const {
+            id
+        } = req.params;
         const doodle = await Doodle.findById(id);
-        
+        const imagePath = path.join(__dirname, "../public/images/", req.file.filename);
         if (!doodle) {
             return res.status(404).json({
                 message: `Không tìm thấy doodle với ID: ${id}`
             });
         }
-
         let imageUrl = null;
 
         if (req.file) {
-            const result = await cloudinary.uploader.upload(req.file.path);
+            const result = await cloudinary.v2.uploader.upload(imagePath);
             imageUrl = result.secure_url;
+            fs.unlink(imagePath,  function (err, data) {
+                if (err) throw err;
+                console.log('Delete file successfully');
+            });
         }
 
         // Cập nhật thông tin của doodle
         const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
             ...req.body,
             image: imageUrl ? imageUrl : doodle.image
-        }, { new: true });
+        }, {
+            new: true
+        });
 
         res.json({
             code: 200,
