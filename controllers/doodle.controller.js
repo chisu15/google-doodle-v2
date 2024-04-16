@@ -59,7 +59,7 @@ module.exports.create = async (req, res) => {
                 message: "Vui lòng chọn một tệp hình ảnh"
             });
         }
-        const imagePath = path.join(__dirname, "../public/images/", req.file.filename);
+        const imagePath = path.join(process.cwd(), "../public/images/", req.file.filename);
         const readStream = fs.createReadStream(imagePath);
         console.log("Path: ", imagePath);
         const checkDoodle = await Doodle.findOne({
@@ -119,7 +119,7 @@ module.exports.edit = async (req, res) => {
             });
         }
         if (req.file) {
-            const imagePath = path.join(__dirname, "../public/images/", req.file.filename);
+            const imagePath = path.join(process.cwd(), "../public/images/", req.file.filename);
             await cloudinary.v2.uploader.destroy(doodle.public_id);
             const result = await cloudinary.v2.uploader.upload(imagePath);
             const imageUrl = result.secure_url;
