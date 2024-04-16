@@ -7,9 +7,11 @@ const storage = multer.memoryStorage();
 const upload = multer();
 const cloudinary = require('cloudinary');
 require('dotenv').config();
-const { resolve } = require('path');
+const {
+    resolve
+} = require('path');
 const path = require('path');
-
+const streamifier = require('streamifier');
 
 
 cloudinary.v2.config({
@@ -58,34 +60,41 @@ module.exports.create = async (req, res) => {
             });
         }
         const imagePath = path.join(__dirname, "../public/images/", req.file.filename);
+        const readStream = fs.createReadStream(imagePath);
         console.log("Path: ", imagePath);
         const checkDoodle = await Doodle.findOne({
             title: req.body.title
         });
-        if(checkDoodle) {
+        if (checkDoodle) {
+            await fs.promises.unlink(imagePath);
+            console.log('File deleted successfully');
             return res.status(400).json({
                 code: 400,
                 message: "Tên doodle đã tồn tại!"
             });
-        }
-        else{
-            const result = await cloudinary.v2.uploader.upload(imagePath);
-            const imageUrl = result.secure_url;
-            fs.unlink(imagePath,  function (err, data) {
-                if (err) throw err;
-                console.log('Delete file successfully');
+        } else {
+            const result = await new Promise((resolve, reject) => {
+                readStream.pipe(cloudinary.v2.uploader.upload_stream((error, result) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(result);
+                    }
+                }));
             });
+            const imageUrl = await result.secure_url;
             console.log(imageUrl);
             const doodle = new Doodle({
                 ...req.body,
                 image: imageUrl,
             });
             await doodle.save();
-    
             res.json({
                 code: 200,
                 message: "Tạo thành công!"
             })
+            await fs.promises.unlink(imagePath);
+            console.log('File deleted successfully');
         }
     } catch (error) {
         res.json({
@@ -103,30 +112,33 @@ module.exports.edit = async (req, res) => {
             id
         } = req.params;
         const doodle = await Doodle.findById(id);
-        const imagePath = path.join(__dirname, "../public/images/", req.file.filename);
         if (!doodle) {
             return res.status(404).json({
                 message: `Không tìm thấy doodle với ID: ${id}`
             });
         }
-        let imageUrl = null;
-
         if (req.file) {
+            const imagePath = path.join(__dirname, "../public/images/", req.file.filename);
             const result = await cloudinary.v2.uploader.upload(imagePath);
-            imageUrl = result.secure_url;
-            fs.unlink(imagePath,  function (err, data) {
-                if (err) throw err;
-                console.log('Delete file successfully');
+            const imageUrl = result.secure_url;
+            // Cập nhật thông tin của doodle
+            const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
+                ...req.body,
+                image: imageUrl
+            }, {
+                new: true
+            });
+            await fs.promises.unlink(imagePath);
+            console.log('File deleted successfully');
+        } else {
+            // Cập nhật thông tin của doodle
+            const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
+                ...req.body
+            }, {
+                new: true
             });
         }
 
-        // Cập nhật thông tin của doodle
-        const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
-            ...req.body,
-            image: imageUrl ? imageUrl : doodle.image
-        }, {
-            new: true
-        });
 
         res.json({
             code: 200,
@@ -146,6 +158,7 @@ module.exports.delete = async (req, res) => {
         const {
             id
         } = req.params;
+        // const result = await cloudinary.v2.uploader.destroy(public_id, options).then(callback);
         const doodle = await Doodle.findByIdAndDelete(id);
         res.json({
             code: 200,

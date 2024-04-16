@@ -19,6 +19,7 @@ const doodleSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    public_id: String,
     doodle_category_id: [
       {
         type: String,
