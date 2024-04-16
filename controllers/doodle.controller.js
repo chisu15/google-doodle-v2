@@ -59,7 +59,7 @@ module.exports.create = async (req, res) => {
                 message: "Vui lòng chọn một tệp hình ảnh"
             });
         }
-        const imagePath = `/public/images/${req.file.filename}`;
+        const imagePath = `../public/images/${req.file.filename}`;
         const readStream = fs.createReadStream(imagePath);
         console.log("Path: ", imagePath);
         const checkDoodle = await Doodle.findOne({
