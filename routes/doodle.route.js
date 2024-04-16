@@ -31,7 +31,7 @@ router.get('/', controller.index);
 router.get('/detail/:id', controller.detail);
 router.post('/create',upload.single('image'), controller.create);
 router.patch('/edit/:id', upload.single('image'), controller.edit);
-router.delete('/:id', controller.delete);
+router.delete('/delete/:id', controller.delete);
 
 router.get('/popular', controller.popular);
 router.get('/special', controller.special);

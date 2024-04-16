@@ -87,6 +87,7 @@ module.exports.create = async (req, res) => {
             const doodle = new Doodle({
                 ...req.body,
                 image: imageUrl,
+                public_id: result.public_id,
             });
             await doodle.save();
             res.json({
@@ -119,12 +120,14 @@ module.exports.edit = async (req, res) => {
         }
         if (req.file) {
             const imagePath = path.join(__dirname, "../public/images/", req.file.filename);
+            await cloudinary.v2.uploader.destroy(doodle.public_id);
             const result = await cloudinary.v2.uploader.upload(imagePath);
             const imageUrl = result.secure_url;
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
-                image: imageUrl
+                image: imageUrl,
+                public_id: result.public_id,
             }, {
                 new: true
             });
@@ -158,8 +161,11 @@ module.exports.delete = async (req, res) => {
         const {
             id
         } = req.params;
-        // const result = await cloudinary.v2.uploader.destroy(public_id, options).then(callback);
-        const doodle = await Doodle.findByIdAndDelete(id);
+        const doodle = await Doodle.findById(id);
+        console.log(doodle, "id: ", id);
+        const result = await cloudinary.v2.uploader.destroy(doodle.public_id);
+        console.log("Delete on cloud success!");
+        const deletedDoodle= await doodle.deleteOne();
         res.json({
             code: 200,
             message: "Xóa thành công!"
@@ -197,7 +203,7 @@ module.exports.newest = async (req, res) => {
     try {
         const doodleList = await Doodle.aggregate([{
                 $sort: {
-                    timecreatedAt: -1
+                    createdAt: -1
                 },
             },
             {
