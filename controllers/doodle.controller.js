@@ -12,6 +12,7 @@ const {
 } = require('path');
 const path = require('path');
 const streamifier = require('streamifier');
+const { log } = require('console');
 
 
 cloudinary.v2.config({
@@ -20,7 +21,7 @@ cloudinary.v2.config({
     api_secret: process.env.API_SECRET,
     secure: true,
 });
-
+const dir = path.join(__dirname, "../public/images");
 // [GET] VIEW
 module.exports.index = async (req, res) => {
     try {
@@ -51,8 +52,44 @@ module.exports.detail = async (req, res) => {
 }
 
 // [POST] CREATE
+// module.exports.create = async (req, res) => {
+//     try {
+//         const checkDoodle = await Doodle.findOne({
+//             title: req.body.title
+//         });
+//         if (checkDoodle) {
+//             return res.status(400).json({
+//                 code: 400,
+//                 message: "Tên doodle đã tồn tại!"
+//             });
+//         } else {
+//             const {
+//                 imageUrl,
+//                 public_id
+//             } = req.body;
+//             const doodle = new Doodle({
+//                 ...req.body,
+//                 image: imageUrl,
+//                 public_id: public_id,
+//             });
+//             await doodle.save();
+//             res.json({
+//                 code: 200,
+//                 message: "Tạo thành công!"
+//             })
+//         }
+//     } catch (error) {
+//         res.json({
+//             code: 400,
+//             message: "Tạo sản phẩm thất bại",
+//             error: error.message
+//         })
+//     }
+// }
+
 module.exports.create = async (req, res) => {
     try {
+        console.log(1);
         if (!req.file) {
             return res.status(400).json({
                 code: 400,
@@ -142,8 +179,6 @@ module.exports.edit = async (req, res) => {
                 new: true
             });
         }
-
-
         res.json({
             code: 200,
             message: "Cập nhật thành công!"
@@ -166,7 +201,7 @@ module.exports.delete = async (req, res) => {
         console.log(doodle, "id: ", id);
         const result = await cloudinary.v2.uploader.destroy(doodle.public_id);
         console.log("Delete on cloud success!");
-        const deletedDoodle= await doodle.deleteOne();
+        const deletedDoodle = await doodle.deleteOne();
         res.json({
             code: 200,
             message: "Xóa thành công!"
