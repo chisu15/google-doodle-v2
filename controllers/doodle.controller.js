@@ -63,7 +63,8 @@ module.exports.create = async (req, res) => {
             });
         }
         console.log(__dirname);
-        const imagePath = path.join(__dirname, "../tmp/", req.file.filename);
+        // const imagePath = path.join(__dirname, "../tmp/", req.file.filename);       
+        const imagePath = path.join("/tmp/", req.file.filename);
         const readStream = fs.createReadStream(imagePath);
         console.log("Path: ", imagePath);
         const checkDoodle = await Doodle.findOne({
@@ -123,7 +124,8 @@ module.exports.edit = async (req, res) => {
             });
         }
         if (req.file) {
-            const imagePath = path.join(__dirname, "../tmp/", req.file.filename);
+            // const imagePath = path.join(__dirname, "../tmp/", req.file.filename);
+            const imagePath = path.join("/tmp/", req.file.filename);
             await cloudinary.v2.uploader.destroy(doodle.public_id);
             const result = await cloudinary.v2.uploader.upload(imagePath);
             const imageUrl = result.secure_url;

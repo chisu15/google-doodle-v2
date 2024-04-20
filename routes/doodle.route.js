@@ -6,7 +6,8 @@ const controller = require("../controllers/doodle.controller");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './tmp/');
+        // cb(null, './tmp/');
+        cb(null, '/tmp/');
     },
     filename: function (req, file, cb) {
         const extname = typeof file.originalname === 'string' ? path.extname(file.originalname) : '';
