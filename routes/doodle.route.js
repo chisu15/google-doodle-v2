@@ -6,7 +6,7 @@ const controller = require("../controllers/doodle.controller");
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, './public/images/');
+        cb(null, './tmp/');
     },
     filename: function (req, file, cb) {
         const extname = typeof file.originalname === 'string' ? path.extname(file.originalname) : '';
@@ -29,10 +29,10 @@ const upload = multer({
 
 
 router.get('/', controller.index);
-router.get('/detail/:id', controller.detail);
-router.post('/create',upload.single('image'), controller.create);
-router.patch('/edit/:id', upload.single('image'), controller.edit);
-router.delete('/delete/:id', controller.delete);
+router.get('/:id', controller.detail);
+router.post('/',upload.single('image'), controller.create);
+router.patch('/:id', upload.single('image'), controller.edit);
+router.delete('/:id', controller.delete);
 
 router.get('/popular', controller.popular);
 router.get('/special', controller.special);
