@@ -3,15 +3,13 @@ const fs = require('fs');
 const multer = require('multer');
 const generate = require('../helpers/generate');
 
-const storage = multer.memoryStorage();
-const upload = multer();
 const cloudinary = require('cloudinary');
 require('dotenv').config();
 const {
     resolve
 } = require('path');
 const path = require('path');
-const streamifier = require('streamifier');
+
 const { log } = require('console');
 
 
@@ -196,7 +194,9 @@ module.exports.popular = async (req, res) => {
         ]);
         res.status(200).json(doodleList);
     } catch (error) {
+        console.log(error.message);
         res.status(500).json({
+            code: 500,
             message: error.message,
         });
     }
@@ -205,18 +205,13 @@ module.exports.popular = async (req, res) => {
 // [GET]NEWEST
 module.exports.newest = async (req, res) => {
     try {
-        const doodleList = await Doodle.aggregate([{
-                $sort: {
-                    createdAt: -1
-                },
-            },
-            {
-                $limit: 12,
-            },
-        ]);
-        res.status(200).json(doodleList);
+        const doodleList = await Doodle.find().sort({ createdAt: -1 });
+        console.log(doodleList);
+        res.json(doodleList);
     } catch (error) {
+        console.log(error.message);
         res.status(500).json({
+            code: 500,
             message: error.message,
         });
     }

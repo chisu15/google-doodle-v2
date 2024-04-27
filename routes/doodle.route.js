@@ -30,14 +30,14 @@ const upload = multer({
 
 
 router.get('/', controller.index);
-router.get('/:id', controller.detail);
+router.get('/detail/:id', controller.detail);
+router.get('/newest', controller.newest);
+router.get('/popular', controller.popular);
+router.get('/special', controller.special);
 router.post('/',upload.single('image'), controller.create);
 router.patch('/:id', upload.single('image'), controller.edit);
 router.delete('/:id', controller.delete);
 
-router.get('/popular', controller.popular);
-router.get('/special', controller.special);
-router.get('/newest', controller.newest);
 
 
 
