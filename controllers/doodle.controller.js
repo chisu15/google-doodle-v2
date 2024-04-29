@@ -10,7 +10,9 @@ const {
 } = require('path');
 const path = require('path');
 
-const { log } = require('console');
+const {
+    log
+} = require('console');
 
 
 cloudinary.v2.config({
@@ -157,6 +159,41 @@ module.exports.edit = async (req, res) => {
         });
     }
 };
+
+// [PATCH] MULTI CHANGE
+module.exports.multiChange = async (req, res) => {
+    try {
+        const ids = req.body.ids;
+
+
+        const updatePromises = ids.map(async id => {
+            const doodle = await Doodle.findById(id);
+            if (!doodle) {
+                return res.status(404).json({
+                    message: `Không tìm thấy doodle với ID: ${id}`
+                });
+            }
+
+            return Doodle.findByIdAndUpdate(id, { ...req.body }, { new: true });
+        });
+
+
+        const updatedDoodles = await Promise.all(updatePromises);
+
+        res.json({
+            code: 200,
+            message: "Cập nhật thành công!",
+            data: updatedDoodles
+        });
+    } catch (error) {
+        res.status(400).json({
+            code: 400,
+            message: "Cập nhật thất bại!",
+            error: error.message
+        });
+    }
+}
+
 // [DELETE] DELETE
 module.exports.delete = async (req, res) => {
     try {
@@ -205,7 +242,9 @@ module.exports.popular = async (req, res) => {
 // [GET]NEWEST
 module.exports.newest = async (req, res) => {
     try {
-        const doodleList = await Doodle.find().sort({ createdAt: -1 });
+        const doodleList = await Doodle.find().sort({
+            createdAt: -1
+        });
         console.log(doodleList);
         res.json(doodleList);
     } catch (error) {

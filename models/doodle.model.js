@@ -19,6 +19,9 @@ const doodleSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    status: {
+      type: Boolean,
+    },
     public_id: String,
     doodle_category_id: [
       {
@@ -46,6 +49,10 @@ const doodleSchema = new mongoose.Schema(
     timeEnd: {
       type: Date,
       default: null,
+    },
+    information: {
+      type: String,
+      default: "",
     },
     slug: {
       type: String,
