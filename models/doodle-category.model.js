@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-
+const slugify = require('slugify');
 const doodleCategorySchema = new mongoose.Schema({
     title: String,
     description: String,
