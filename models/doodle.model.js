@@ -42,13 +42,13 @@ const doodleSchema = new mongoose.Schema(
     updatedAt: {
       type: Date,
     },
-    timeStart: {
-      type: Date,
-      default: '0',
-    },
-    timeEnd: {
-      type: Date,
-      default: null,
+    time:{
+      start: Date,
+      end: {
+        type: Date,
+        default: null
+      },
+      event: Date
     },
     information: {
       type: String,

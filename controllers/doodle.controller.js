@@ -149,7 +149,8 @@ module.exports.edit = async (req, res) => {
         }
         res.json({
             code: 200,
-            message: "Cập nhật thành công!"
+            message: "Cập nhật thành công!",
+            data: doodle
         });
     } catch (error) {
         res.status(400).json({
@@ -164,9 +165,9 @@ module.exports.edit = async (req, res) => {
 module.exports.multiChange = async (req, res) => {
     try {
         const ids = req.body.ids;
+        const { information } = req.body;
 
-
-        const updatePromises = ids.map(async id => {
+        const updatePromises = ids.map(async (id, index) => {
             const doodle = await Doodle.findById(id);
             if (!doodle) {
                 return res.status(404).json({
@@ -174,7 +175,12 @@ module.exports.multiChange = async (req, res) => {
                 });
             }
 
-            return Doodle.findByIdAndUpdate(id, { ...req.body }, { new: true });
+            return Doodle.findByIdAndUpdate(id, {
+                ...req.body,
+                information: information[index]
+            }, {
+                new: true
+            });
         });
 
 
