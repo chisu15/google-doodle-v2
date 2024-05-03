@@ -266,19 +266,19 @@ module.exports.newest = async (req, res) => {
 module.exports.upcoming = async (req, res) => {
     try {
         const currentDate = new Date();
-        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59);
-    
         const doodles = await Doodle.aggregate([
           {
             $match: {
-              'time.event': { $gte: startOfMonth, $lte: endOfMonth }
+              'time.event': { $gte: currentDate }
             }
           },
           {
             $sort: {
-              'time.event': 1 // Sắp xếp theo thời gian sự kiện tăng dần
+              'time.event': 1
             }
+          },
+          {
+            $limit: 5
           }
         ]);
         res.status(200).json(doodles);
