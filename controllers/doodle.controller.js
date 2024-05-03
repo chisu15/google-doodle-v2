@@ -263,23 +263,25 @@ module.exports.newest = async (req, res) => {
 };
 
 // [GET]SPECIAL
-module.exports.special = async (req, res) => {
+module.exports.upcoming = async (req, res) => {
     try {
-        const currentDate = new Date(Date.now());
-        const currentMonth = (currentDate.getMonth() + 1).toString();
-        const doodleList = await Doodle.aggregate([{
-                $unwind: '$doodle_category_id',
-            },
-            {
-                $match: {
-                    doodle_category_id: currentMonth,
-                },
-            },
-            {
-                $limit: 6,
-            },
+        const currentDate = new Date();
+        const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+        const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0, 23, 59, 59);
+    
+        const doodles = await Doodle.aggregate([
+          {
+            $match: {
+              'time.event': { $gte: startOfMonth, $lte: endOfMonth }
+            }
+          },
+          {
+            $sort: {
+              'time.event': 1 // Sắp xếp theo thời gian sự kiện tăng dần
+            }
+          }
         ]);
-        res.status(200).json(doodleList);
+        res.status(200).json(doodles);
     } catch (error) {
         res.status(500).json({
             message: error.message,

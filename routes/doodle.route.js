@@ -33,7 +33,7 @@ router.get('/', controller.index);
 router.get('/detail/:id', controller.detail);
 router.get('/newest', controller.newest);
 router.get('/popular', controller.popular);
-router.get('/special', controller.special);
+router.get('/upcoming', controller.upcoming);
 router.post('/',upload.single('image'), controller.create);
 router.patch('/:id', upload.single('image'), controller.edit);
 router.patch("/", controller.multiChange);
