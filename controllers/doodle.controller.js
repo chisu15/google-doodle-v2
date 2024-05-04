@@ -149,7 +149,6 @@ module.exports.edit = async (req, res) => {
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
-                format: fileExtension
             }, {
                 new: true
             });
