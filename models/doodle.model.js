@@ -43,6 +43,7 @@ const doodleSchema = new mongoose.Schema(
       type: Date,
     },
     format: String,
+    dateString: String,
     time:{
       start: Date,
       end: {
