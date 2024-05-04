@@ -43,9 +43,9 @@ const doodleSchema = new mongoose.Schema(
       type: Date,
     },
     format: String,
-    dateString: String,
     time:{
       start: Date,
+      dateString: String,
       end: {
         type: Date,
         default: null
