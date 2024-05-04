@@ -93,6 +93,7 @@ module.exports.create = async (req, res) => {
             console.log(imageUrl);
             const doodle = new Doodle({
                 ...req.body,
+                status: req.body.status === 'true',
                 format: fileExtension,
                 image: imageUrl,
                 public_id: result.public_id,
@@ -137,6 +138,7 @@ module.exports.edit = async (req, res) => {
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
+                status: req.body.status === 'true',
                 format: fileExtension,
                 image: imageUrl,
                 public_id: result.public_id,
@@ -149,6 +151,7 @@ module.exports.edit = async (req, res) => {
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
+                status: req.body.status === 'true'
             }, {
                 new: true
             });
