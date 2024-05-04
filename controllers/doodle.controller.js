@@ -65,6 +65,8 @@ module.exports.create = async (req, res) => {
         console.log(__dirname);
         // const imagePath = path.join(__dirname, "../tmp/", req.file.filename);       
         const imagePath = path.join("/tmp/", req.file.filename);
+        const fileExtension = req.file.filename.split('.').pop().toLowerCase();
+        console.log("....................................:" + fileExtension);
         const readStream = fs.createReadStream(imagePath);
         console.log("Path: ", imagePath);
         const checkDoodle = await Doodle.findOne({
@@ -91,6 +93,7 @@ module.exports.create = async (req, res) => {
             console.log(imageUrl);
             const doodle = new Doodle({
                 ...req.body,
+                format: fileExtension,
                 image: imageUrl,
                 public_id: result.public_id,
             });
@@ -126,12 +129,15 @@ module.exports.edit = async (req, res) => {
         if (req.file) {
             // const imagePath = path.join(__dirname, "../tmp/", req.file.filename);
             const imagePath = path.join("/tmp/", req.file.filename);
+            const fileExtension = req.file.filename.split('.').pop().toLowerCase();
+            console.log("....................................:" + fileExtension);
             await cloudinary.v2.uploader.destroy(doodle.public_id);
             const result = await cloudinary.v2.uploader.upload(imagePath);
             const imageUrl = result.secure_url;
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
+                format: fileExtension,
                 image: imageUrl,
                 public_id: result.public_id,
             }, {
@@ -142,7 +148,8 @@ module.exports.edit = async (req, res) => {
         } else {
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
-                ...req.body
+                ...req.body,
+                format: fileExtension
             }, {
                 new: true
             });
@@ -269,7 +276,8 @@ module.exports.upcoming = async (req, res) => {
         const doodles = await Doodle.aggregate([
           {
             $match: {
-              'time.event': { $gte: currentDate }
+              'time.event': { $gte: currentDate },
+              status: true,
             }
           },
           {
