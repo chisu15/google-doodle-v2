@@ -37,7 +37,7 @@ router.get('/upcoming', controller.upcoming);
 router.post('/',upload.single('image'), controller.create);
 router.patch('/:id', upload.single('image'), controller.edit);
 router.patch("/", controller.multiChange);
-router.delete('/:id', controller.delete);
+router.delete('/delete/:id', controller.delete);
 
 
 

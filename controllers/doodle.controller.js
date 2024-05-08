@@ -191,7 +191,7 @@ module.exports.multiChange = async (req, res) => {
 
             return Doodle.findByIdAndUpdate(id, {
                 ...req.body,
-                information: information[index]
+                // information: information[index]
             }, {
                 new: true
             });
