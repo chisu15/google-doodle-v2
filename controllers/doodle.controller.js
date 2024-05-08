@@ -272,9 +272,6 @@ module.exports.newest = async (req, res) => {
                     'createdAt': -1
                 }
             },
-            {
-                $limit: 5
-            }
         ]);
         console.log(doodleList);
         res.json(doodleList);
