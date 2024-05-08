@@ -93,6 +93,7 @@ module.exports.create = async (req, res) => {
             console.log(imageUrl);
             const doodle = new Doodle({
                 ...req.body,
+                doodle_category_id: req.body.doodle_category_id,
                 status: req.body.status === 'true',
                 format: fileExtension,
                 image: imageUrl,
@@ -138,6 +139,7 @@ module.exports.edit = async (req, res) => {
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
+                doodle_category_id: req.body.doodle_category_id,
                 status: req.body.status === 'true',
                 format: fileExtension,
                 image: imageUrl,
@@ -151,6 +153,7 @@ module.exports.edit = async (req, res) => {
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
+                doodle_category_id: req.body.doodle_category_id,
                 status: req.body.status === 'true'
             }, {
                 new: true
@@ -174,7 +177,9 @@ module.exports.edit = async (req, res) => {
 module.exports.multiChange = async (req, res) => {
     try {
         const ids = req.body.ids;
-        const { information } = req.body;
+        const {
+            information
+        } = req.body;
 
         const updatePromises = ids.map(async (id, index) => {
             const doodle = await Doodle.findById(id);
@@ -257,9 +262,20 @@ module.exports.popular = async (req, res) => {
 // [GET]NEWEST
 module.exports.newest = async (req, res) => {
     try {
-        const doodleList = await Doodle.find().sort({
-            createdAt: -1
-        });
+        const doodleList = await Doodle.aggregate([{
+                $match: {
+                    status: true
+                }
+            },
+            {
+                $sort: {
+                    'createdAt': -1
+                }
+            },
+            {
+                $limit: 5
+            }
+        ]);
         console.log(doodleList);
         res.json(doodleList);
     } catch (error) {
@@ -275,21 +291,22 @@ module.exports.newest = async (req, res) => {
 module.exports.upcoming = async (req, res) => {
     try {
         const currentDate = new Date();
-        const doodles = await Doodle.aggregate([
-          {
-            $match: {
-              'time.event': { $gte: currentDate },
-              status: true,
+        const doodles = await Doodle.aggregate([{
+                $match: {
+                    'time.event': {
+                        $gte: currentDate
+                    },
+                    status: true,
+                }
+            },
+            {
+                $sort: {
+                    'time.event': 1
+                }
+            },
+            {
+                $limit: 5
             }
-          },
-          {
-            $sort: {
-              'time.event': 1
-            }
-          },
-          {
-            $limit: 5
-          }
         ]);
         res.status(200).json(doodles);
     } catch (error) {
