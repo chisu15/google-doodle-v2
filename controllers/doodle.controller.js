@@ -92,8 +92,8 @@ module.exports.create = async (req, res) => {
             const imageUrl = await result.secure_url;
             console.log(imageUrl);
             let status;
-            if (req.status) {
-                status = req.status;
+            if (req.body.status) {
+                status = req.body.status;
             }
             const doodle = new Doodle({
                 ...req.body,
@@ -141,8 +141,8 @@ module.exports.edit = async (req, res) => {
             const result = await cloudinary.v2.uploader.upload(imagePath);
             const imageUrl = result.secure_url;
             let status;
-            if (req.status) {
-                status = req.status;
+            if (req.body.status) {
+                status = req.body.status;
             }
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
@@ -160,8 +160,8 @@ module.exports.edit = async (req, res) => {
         } else {
             // Cập nhật thông tin của doodle
             let status;
-            if (req.status) {
-                status = req.status;
+            if (req.body.status) {
+                status = req.body.status;
             }
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
