@@ -184,3 +184,31 @@ module.exports.changePassword = async (req, res) => {
     });
   }
 };
+
+// [PATCH] FAVORITE
+module.exports.favorite = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await Users.findById(id);
+    if (!user) {
+      return res.json({
+        code: 404,
+        message: 'Not found user!',
+      });
+    }
+    req.body.favorite.map((item) => {
+      user.favorite.push(item);
+    });
+    await user.save();
+    return res.json({
+      code: 200,
+      message: 'Update user favorite successful!',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      code: 500,
+      message: 'Internal Server Error',
+    });
+  }
+};
