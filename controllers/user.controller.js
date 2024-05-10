@@ -47,16 +47,44 @@ module.exports.register = async (req, res) => {
 // [POST] version/user/login
 module.exports.login = async (req, res) => {
   try {
-    const user = 
-  } catch (error) {}
+    const infoUser = {
+      email: req.body.email,
+      password: md5(req.body.password),
+    };
+    const user = await Users.findOne({ email: infoUser.email });
+    if (!user) {
+      return res.json({
+        code: 404,
+        message: 'Email not found!',
+      });
+    }
+    if (user.password !== infoUser.password) {
+      return res.json({
+        code: 400,
+        message: 'Password is incorrect!',
+      });
+    }
+    return res.json({
+      code: 200,
+      message: 'Login success!',
+      token: user.token,
+    });
+  } catch (error) {
+    console.error(error);
+    res.json({
+      code: 500,
+      message: 'Internal Server Error',
+    });
+  }
 };
+
 // [GET] VIEW
 module.exports.index = async (req, res) => {
   try {
     const usersList = await Users.find();
-    res.status(200).json(doodles);
+    return res.status(200).json(usersList);
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
@@ -67,9 +95,9 @@ module.exports.detail = async (req, res) => {
   try {
     const { id } = req.params;
     const user = await Users.findById(id);
-    res.status(200).json(doodle);
+    return res.status(200).json(user);
   } catch (error) {
-    res.json({
+    return res.json({
       code: 400,
       message: error.message,
     });
@@ -88,21 +116,71 @@ module.exports.edit = async (req, res) => {
       });
       return;
     }
-    const infoUser = {
-      fullName: req.body.fullName,
-      email: req.body.email,
-      favorite: req.body.favorite,
-      doodleCreated: req.body.doodleCreated,
-    };
-    await Users.findByIdAndUpdate(id, infoUser);
-    res.json({
+
+    user.fullName = req.body.fullName;
+    user.email = req.body.email;
+
+    await user.save();
+    return res.json({
       code: 200,
-      message: 'Cập nhật người dùng thành công',
+      message: 'Update user successful!',
     });
   } catch (error) {
+    console.log(error);
     res.json({
       code: 500,
+      message: 'Internal Server Error',
+    });
+  }
+};
+
+// [DELETE] DELETE
+module.exports.delete = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await Users.findById(id);
+    if (!user) {
+      return res.json({
+        code: 404,
+        message: 'Not found user!',
+      });
+    }
+    user.deleted = true;
+    await user.save();
+    return res.json({
+      code: 200,
+      message: 'Delete user successful!',
+    });
+  } catch (error) {
+    return res.json({
+      code: 500,
       message: error.message,
+    });
+  }
+};
+
+// [PATCH] CHANGE PASSWORD
+module.exports.changePassword = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await Users.findById(id);
+    if (!user) {
+      return res.json({
+        code: 404,
+        message: 'Not found user!',
+      });
+    }
+    user.password = md5(req.body.password);
+    await user.save();
+    return res.json({
+      code: 200,
+      message: 'Change password successful!',
+    });
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      code: 500,
+      message: 'Internal Server Error',
     });
   }
 };
