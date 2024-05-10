@@ -91,10 +91,14 @@ module.exports.create = async (req, res) => {
             });
             const imageUrl = await result.secure_url;
             console.log(imageUrl);
+            let status;
+            if (req.status) {
+                status = req.status;
+            }
             const doodle = new Doodle({
                 ...req.body,
                 doodle_category_id: req.body.doodle_category_id,
-                status: req.body.status === 'true',
+                status: status,
                 format: fileExtension,
                 image: imageUrl,
                 public_id: result.public_id,
@@ -136,11 +140,15 @@ module.exports.edit = async (req, res) => {
             await cloudinary.v2.uploader.destroy(doodle.public_id);
             const result = await cloudinary.v2.uploader.upload(imagePath);
             const imageUrl = result.secure_url;
+            let status;
+            if (req.status) {
+                status = req.status;
+            }
             // Cập nhật thông tin của doodle
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
                 doodle_category_id: req.body.doodle_category_id,
-                status: req.body.status === 'true',
+                status: status,
                 format: fileExtension,
                 image: imageUrl,
                 public_id: result.public_id,
@@ -151,10 +159,14 @@ module.exports.edit = async (req, res) => {
             console.log('File deleted successfully');
         } else {
             // Cập nhật thông tin của doodle
+            let status;
+            if (req.status) {
+                status = req.status;
+            }
             const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
                 ...req.body,
                 doodle_category_id: req.body.doodle_category_id,
-                status: req.body.status === 'true'
+                status: status
             }, {
                 new: true
             });
