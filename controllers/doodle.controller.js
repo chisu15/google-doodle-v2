@@ -47,142 +47,135 @@ module.exports.detail = async (req, res) => {
 // [POST] CREATE
 
 module.exports.create = async (req, res) => {
-  try {
-    console.log(1);
-    if (!req.file) {
-      return res.status(400).json({
-        code: 400,
-        message: 'Vui lòng chọn một tệp hình ảnh',
-      });
-    }
-    console.log(__dirname);
-    // const imagePath = path.join(__dirname, "../tmp/", req.file.filename);
-    const imagePath = path.join('/tmp/', req.file.filename);
-    const fileExtension = req.file.filename.split('.').pop().toLowerCase();
-    console.log('....................................:' + fileExtension);
-    const readStream = fs.createReadStream(imagePath);
-    console.log('Path: ', imagePath);
-    const checkDoodle = await Doodle.findOne({
-      title: req.body.title,
-    });
-    if (checkDoodle) {
-      await fs.promises.unlink(imagePath);
-      console.log('File deleted successfully');
-      return res.status(400).json({
-        code: 400,
-        message: 'Tên doodle đã tồn tại!',
-      });
-    } else {
-      const result = await new Promise((resolve, reject) => {
-        readStream.pipe(
-          cloudinary.v2.uploader.upload_stream((error, result) => {
-            if (error) {
-              reject(error);
-            } else {
-              resolve(result);
+    try {
+        console.log(1);
+        if (!req.file) {
+            return res.status(400).json({
+                code: 400,
+                message: "Vui lòng chọn một tệp hình ảnh"
+            });
+        }
+        console.log(__dirname);
+        // const imagePath = path.join(__dirname, "../tmp/", req.file.filename);       
+        const imagePath = path.join("/tmp/", req.file.filename);
+        const fileExtension = req.file.filename.split('.').pop().toLowerCase();
+        console.log("....................................:" + fileExtension);
+        const readStream = fs.createReadStream(imagePath);
+        console.log("Path: ", imagePath);
+        const checkDoodle = await Doodle.findOne({
+            title: req.body.title
+        });
+        if (checkDoodle) {
+            await fs.promises.unlink(imagePath);
+            console.log('File deleted successfully');
+            return res.status(400).json({
+                code: 400,
+                message: "Tên doodle đã tồn tại!"
+            });
+        } else {
+            const result = await new Promise((resolve, reject) => {
+                readStream.pipe(cloudinary.v2.uploader.upload_stream((error, result) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        resolve(result);
+                    }
+                }));
+            });
+            const imageUrl = await result.secure_url;
+            console.log(imageUrl);
+            let status;
+            if (req.body.status) {
+                status = req.body.status;
             }
-          })
-        );
-      });
-      const imageUrl = await result.secure_url;
-      console.log(imageUrl);
-      let status;
-      if (req.status) {
-        status = req.status;
-      }
-      const doodle = new Doodle({
-        ...req.body,
-        doodle_category_id: req.body.doodle_category_id,
-        status: status,
-        format: fileExtension,
-        image: imageUrl,
-        public_id: result.public_id,
-      });
-      await doodle.save();
-      res.json({
-        code: 200,
-        message: 'Tạo thành công!',
-      });
-      await fs.promises.unlink(imagePath);
-      console.log('File deleted successfully');
+            const doodle = new Doodle({
+                ...req.body,
+                doodle_category_id: req.body.doodle_category_id,
+                status: status,
+                format: fileExtension,
+                image: imageUrl,
+                public_id: result.public_id,
+            });
+            await doodle.save();
+            res.json({
+                code: 200,
+                message: "Tạo thành công!"
+            })
+            await fs.promises.unlink(imagePath);
+            console.log('File deleted successfully');
+        }
+    } catch (error) {
+        res.json({
+            code: 400,
+            message: "Tạo sản phẩm thất bại",
+            error: error.message
+        })
+
     }
-  } catch (error) {
-    res.json({
-      code: 400,
-      message: 'Tạo sản phẩm thất bại',
-      error: error.message,
-    });
-  }
 };
 // [PATCH] EDIT
 module.exports.edit = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const doodle = await Doodle.findById(id);
-    if (!doodle) {
-      return res.status(404).json({
-        message: `Không tìm thấy doodle với ID: ${id}`,
-      });
-    }
-    if (req.file) {
-      // const imagePath = path.join(__dirname, "../tmp/", req.file.filename);
-      const imagePath = path.join('/tmp/', req.file.filename);
-      const fileExtension = req.file.filename.split('.').pop().toLowerCase();
-      console.log('....................................:' + fileExtension);
-      await cloudinary.v2.uploader.destroy(doodle.public_id);
-      const result = await cloudinary.v2.uploader.upload(imagePath);
-      const imageUrl = result.secure_url;
-      let status;
-      if (req.status) {
-        status = req.status;
-      }
-      // Cập nhật thông tin của doodle
-      const updatedDoodle = await Doodle.findByIdAndUpdate(
-        id,
-        {
-          ...req.body,
-          doodle_category_id: req.body.doodle_category_id,
-          status: status,
-          format: fileExtension,
-          image: imageUrl,
-          public_id: result.public_id,
-        },
-        {
-          new: true,
+   try {
+        const {
+            id
+        } = req.params;
+        const doodle = await Doodle.findById(id);
+        if (!doodle) {
+            return res.status(404).json({
+                message: `Không tìm thấy doodle với ID: ${id}`
+            });
         }
-      );
-      await fs.promises.unlink(imagePath);
-      console.log('File deleted successfully');
-    } else {
-      // Cập nhật thông tin của doodle
-      let status;
-      if (req.status) {
-        status = req.status;
-      }
-      const updatedDoodle = await Doodle.findByIdAndUpdate(
-        id,
-        {
-          ...req.body,
-          doodle_category_id: req.body.doodle_category_id,
-          status: status,
-        },
-        {
-          new: true,
+        if (req.file) {
+            // const imagePath = path.join(__dirname, "../tmp/", req.file.filename);
+            const imagePath = path.join("/tmp/", req.file.filename);
+            const fileExtension = req.file.filename.split('.').pop().toLowerCase();
+            console.log("....................................:" + fileExtension);
+            await cloudinary.v2.uploader.destroy(doodle.public_id);
+            const result = await cloudinary.v2.uploader.upload(imagePath);
+            const imageUrl = result.secure_url;
+            let status;
+            if (req.body.status) {
+                status = req.body.status;
+            }
+            // Cập nhật thông tin của doodle
+            const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
+                ...req.body,
+                doodle_category_id: req.body.doodle_category_id,
+                status: status,
+                format: fileExtension,
+                image: imageUrl,
+                public_id: result.public_id,
+            }, {
+                new: true
+            });
+            await fs.promises.unlink(imagePath);
+            console.log('File deleted successfully');
+        } else {
+            // Cập nhật thông tin của doodle
+            let status;
+            if (req.body.status) {
+                status = req.body.status;
+            }
+            const updatedDoodle = await Doodle.findByIdAndUpdate(id, {
+                ...req.body,
+                doodle_category_id: req.body.doodle_category_id,
+                status: status
+            }, {
+                new: true
+            });
         }
-      );
+        res.json({
+            code: 200,
+            message: "Cập nhật thành công!",
+            data: doodle
+        });
+    } catch (error) {
+        res.status(400).json({
+            code: 400,
+            message: "Cập nhật thất bại!",
+            error: error.message
+        });
     }
-    res.json({
-      code: 200,
-      message: 'Cập nhật thành công!',
-      data: doodle,
-    });
-  } catch (error) {
-    res.status(400).json({
-      code: 400,
-      message: 'Cập nhật thất bại!',
-      error: error.message,
-    });
-  }
 };
 
 // [PATCH] MULTI CHANGE
