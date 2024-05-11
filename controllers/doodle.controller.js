@@ -338,6 +338,8 @@ module.exports.edit = async (req, res) => {
             error: error.message
         });
     }
+        });
+    }
 };
 
 // [PATCH] MULTI CHANGE
