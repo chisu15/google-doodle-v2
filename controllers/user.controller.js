@@ -39,6 +39,7 @@ module.exports.register = async (req, res) => {
     console.error(error);
     res.json({
       code: 500,
+      error: error.message,
       message: 'Internal Server Error',
     });
   }
@@ -73,6 +74,7 @@ module.exports.login = async (req, res) => {
     console.error(error);
     res.json({
       code: 500,
+      error: error.message,
       message: 'Internal Server Error',
     });
   }
@@ -129,6 +131,7 @@ module.exports.edit = async (req, res) => {
     console.log(error);
     res.json({
       code: 500,
+      error: error.message,
       message: 'Internal Server Error',
     });
   }
@@ -154,6 +157,7 @@ module.exports.delete = async (req, res) => {
   } catch (error) {
     return res.json({
       code: 500,
+      error: error.message,
       message: error.message,
     });
   }
@@ -180,6 +184,7 @@ module.exports.changePassword = async (req, res) => {
     console.log(error);
     return res.json({
       code: 500,
+      error: error.message,
       message: 'Internal Server Error',
     });
   }
@@ -208,6 +213,7 @@ module.exports.favorite = async (req, res) => {
     console.log(error);
     return res.json({
       code: 500,
+      error: error.message,
       message: 'Internal Server Error',
     });
   }
