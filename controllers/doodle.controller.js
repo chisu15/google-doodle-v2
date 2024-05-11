@@ -32,17 +32,23 @@ module.exports.index = async (req, res) => {
 };
 // [GET] DETAIL
 module.exports.detail = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const doodle = await Doodle.findById(id);
-    res.status(200).json(doodle);
-  } catch (error) {
-    res.json({
-      code: 400,
-      message: error.message,
-    });
-  }
-};
+    try {
+        const {
+            id
+        } = req.params;
+        const doodle = await Doodle.findById(id);
+        doodle.doodle_category_id.forEach(category => {
+            console.log(category+"\n");
+        })
+        console.log(doodle.doodle_category_id[1]);;
+        res.status(200).json(doodle);
+    } catch (error) {
+        res.json({
+            code: 400,
+            message: error.message
+        });
+    }
+}
 
 // [POST] CREATE
 
