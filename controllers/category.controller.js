@@ -63,7 +63,10 @@ module.exports.edit = async (req, res) => {
                 message: `Không tìm thấy Category với ID: ${id}`
             });
         }
-
+        category.title = req.body.title;
+        category.description = req.body.description;
+        await category.save()
+        
         res.json({
             code: 200,
             message: "Cập nhật thành công!",
