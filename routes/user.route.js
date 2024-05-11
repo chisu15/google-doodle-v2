@@ -8,8 +8,8 @@ router.post('/login', controller.login);
 router.get('/', controller.index);
 router.get('/detail/:id', controller.detail);
 router.patch('/change-password/:id', controller.changePassword);
-router.patch('/edit/:id', controller.edit);
+router.patch('/:id', controller.edit);
 router.patch('/favorite/:id', controller.favorite);
-router.delete('/delete/:id', controller.delete);
+router.delete('/:id', controller.delete);
 
 module.exports = router;
