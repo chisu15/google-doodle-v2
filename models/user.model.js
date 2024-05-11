@@ -12,10 +12,10 @@ const userSchema = new mongoose.Schema({
     timeDoodleStart: Date,
     timeDoodleEnd: Date,
     favorite: [{
-        doodle_id: mongoose.Schema.Types.ObjectId
+        type: String
     }],
     doodleCreated: [{
-        doodle_id: mongoose.Schema.Types.ObjectId
+        type: String
     }],
     deleted: {
         type: Boolean,
