@@ -70,7 +70,6 @@ module.exports.edit = async (req, res) => {
         res.json({
             code: 200,
             message: "Cập nhật thành công!",
-            data: Category
         });
     } catch (error) {
         res.status(400).json({
