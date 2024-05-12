@@ -201,6 +201,7 @@ module.exports.favorite = async (req, res) => {
         message: 'Not found user!',
       });
     }
+    user.favorite = [];
     req.body.favorite.map((item) => {
       user.favorite.push(item);
     });
