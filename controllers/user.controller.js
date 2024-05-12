@@ -174,14 +174,23 @@ module.exports.changePassword = async (req, res) => {
         message: 'Not found user!',
       });
     }
-    user.password = md5(req.body.password);
-    await user.save();
+    console.log(user);
+    const oldPassword = md5(req.body.old_password);
+    console.log(oldPassword);
+    if (user.password != oldPassword) {
+      console.log("iqwhdqwo");
+      return res.json({
+        code: 400,
+        message: 'Incorrect password!',
+      });
+    }
+    const newPassword = md5(req.body.new_password);
+    await user.updateOne({ password: newPassword });
     return res.json({
       code: 200,
       message: 'Change password successful!',
     });
   } catch (error) {
-    console.log(error);
     return res.json({
       code: 500,
       error: error.message,
@@ -189,7 +198,6 @@ module.exports.changePassword = async (req, res) => {
     });
   }
 };
-
 // [PATCH] FAVORITE
 module.exports.favorite = async (req, res) => {
   try {
