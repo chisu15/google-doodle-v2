@@ -40,5 +40,7 @@ router.post('/', upload.single('image'), controller.create);
 router.patch('/:id', upload.single('image'), controller.edit);
 router.patch('/', controller.multiChange);
 router.delete('/delete/:id', controller.delete);
-
+router.get('/total-doodle', controller.totalDoodle);
+router.get('/total-view', controller.totalViewAllTimeByMonth);
+router.get('/total-like', controller.totalLikeAllTimeByMonth);
 module.exports = router;

@@ -5,10 +5,14 @@ const generate = require('../helpers/generate');
 
 const cloudinary = require('cloudinary');
 require('dotenv').config();
-const { resolve } = require('path');
+const {
+  resolve
+} = require('path');
 const path = require('path');
 
-const { log } = require('console');
+const {
+  log
+} = require('console');
 
 cloudinary.v2.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -32,22 +36,22 @@ module.exports.index = async (req, res) => {
 };
 // [GET] DETAIL
 module.exports.detail = async (req, res) => {
-    try {
-        const {
-            id
-        } = req.params;
-        const doodle = await Doodle.findById(id);
-        doodle.doodle_category_id.forEach(category => {
-            console.log(category+"\n");
-        })
-        console.log(doodle.doodle_category_id[1]);;
-        res.status(200).json(doodle);
-    } catch (error) {
-        res.json({
-            code: 400,
-            message: error.message
-        });
-    }
+  try {
+    const {
+      id
+    } = req.params;
+    const doodle = await Doodle.findById(id);
+    doodle.doodle_category_id.forEach(category => {
+      console.log(category + "\n");
+    })
+    console.log(doodle.doodle_category_id[1]);;
+    res.status(200).json(doodle);
+  } catch (error) {
+    res.json({
+      code: 400,
+      message: error.message
+    });
+  }
 }
 
 // [POST] CREATE
@@ -123,7 +127,9 @@ module.exports.create = async (req, res) => {
 // [PATCH] EDIT
 module.exports.edit = async (req, res) => {
   try {
-    const { id } = req.params;
+    const {
+      id
+    } = req.params;
     const doodle = await Doodle.findById(id);
     if (!doodle) {
       return res.status(404).json({
@@ -144,16 +150,14 @@ module.exports.edit = async (req, res) => {
       }
       // Cập nhật thông tin của doodle
       const updatedDoodle = await Doodle.findByIdAndUpdate(
-        id,
-        {
+        id, {
           ...req.body,
           doodle_category_id: req.body.doodle_category_id,
           status: status,
           format: fileExtension,
           image: imageUrl,
           public_id: result.public_id,
-        },
-        {
+        }, {
           new: true,
         }
       );
@@ -166,13 +170,11 @@ module.exports.edit = async (req, res) => {
         status = req.body.status;
       }
       const updatedDoodle = await Doodle.findByIdAndUpdate(
-        id,
-        {
+        id, {
           ...req.body,
           doodle_category_id: req.body.doodle_category_id,
           status: status,
-        },
-        {
+        }, {
           new: true,
         }
       );
@@ -195,7 +197,9 @@ module.exports.edit = async (req, res) => {
 module.exports.multiChange = async (req, res) => {
   try {
     const ids = req.body.ids;
-    const { information } = req.body;
+    const {
+      information
+    } = req.body;
 
     const updatePromises = ids.map(async (id, index) => {
       const doodle = await Doodle.findById(id);
@@ -206,12 +210,10 @@ module.exports.multiChange = async (req, res) => {
       }
 
       return Doodle.findByIdAndUpdate(
-        id,
-        {
+        id, {
           ...req.body,
           // information: information[index]
-        },
-        {
+        }, {
           new: true,
         }
       );
@@ -236,7 +238,9 @@ module.exports.multiChange = async (req, res) => {
 // [DELETE] DELETE
 module.exports.delete = async (req, res) => {
   try {
-    const { id } = req.params;
+    const {
+      id
+    } = req.params;
     const doodle = await Doodle.findById(id);
     console.log(doodle, 'id: ', id);
     const result = await cloudinary.v2.uploader.destroy(doodle.public_id);
@@ -256,8 +260,7 @@ module.exports.delete = async (req, res) => {
 // [GET]POPULAR
 module.exports.popular = async (req, res) => {
   try {
-    const doodleList = await Doodle.aggregate([
-      {
+    const doodleList = await Doodle.aggregate([{
         $sort: {
           views: -1,
         },
@@ -279,8 +282,7 @@ module.exports.popular = async (req, res) => {
 // [GET]NEWEST
 module.exports.newest = async (req, res) => {
   try {
-    const doodleList = await Doodle.aggregate([
-      {
+    const doodleList = await Doodle.aggregate([{
         $match: {
           status: true,
         },
@@ -306,8 +308,7 @@ module.exports.newest = async (req, res) => {
 module.exports.upcoming = async (req, res) => {
   try {
     const currentDate = new Date();
-    const doodles = await Doodle.aggregate([
-      {
+    const doodles = await Doodle.aggregate([{
         $match: {
           'time.event': {
             $gte: currentDate,
@@ -328,6 +329,121 @@ module.exports.upcoming = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: error.message,
+    });
+  }
+};
+
+// [GET] TOTAL DOODLE
+module.exports.totalDoodle = async (req, res) => {
+  try {
+    const totalDoodle = await Doodle.countDocuments();
+    res.json({
+      code: 200,
+      total: totalDoodle,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+// [GET] TOTAL VIEW
+module.exports.totalViewAllTimeByMonth = async (req, res) => {
+  try {
+    const yearsWithMonths = await Doodle.aggregate([{
+        $project: {
+          year: {
+            $year: "$createdAt"
+          },
+          month: {
+            $month: "$createdAt"
+          },
+          views: 1
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: "$year",
+            month: "$month"
+          },
+          totalViews: {
+            $sum: "$views"
+          }
+        }
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1
+        }
+      }
+    ]);
+
+    const viewsByMonth = yearsWithMonths.map(data => ({
+      year: data._id.year,
+      month: data._id.month,
+      totalViewsMonth: data.totalViews
+    }));
+
+    res.json({
+      code: 200,
+      viewsByMonth
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// [GET] TOTAL LIKE
+
+module.exports.totalLikeAllTimeByMonth = async (req, res) => {
+  try {
+    const likesByMonth = await Doodle.aggregate([{
+        $project: {
+          year: {
+            $year: "$createdAt"
+          },
+          month: {
+            $month: "$createdAt"
+          },
+          likes: 1
+        }
+      },
+      {
+        $group: {
+          _id: {
+            year: "$year",
+            month: "$month"
+          },
+          totalLikes: {
+            $sum: "$likes"
+          }
+        }
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1
+        }
+      }
+    ]);
+
+    const formattedLikes = likesByMonth.map(data => ({
+      year: data._id.year,
+      month: data._id.month,
+      totalLikes: data.totalLikes
+    }));
+
+    res.json({
+      code: 200,
+      data: formattedLikes
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message
     });
   }
 };
