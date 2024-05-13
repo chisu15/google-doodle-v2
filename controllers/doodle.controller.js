@@ -475,3 +475,21 @@ module.exports.random = async (req, res) => {
     });
   }
 };
+// [GET] GAME DOODLE
+module.exports.game = async (req, res) => {
+  try {
+    const gameDoodle = await Doodle.find({
+      format: 'game'  // Thay đổi điều kiện tìm kiếm để lấy các doodle có định dạng là game
+    });
+    res.json({
+      gameDoodle
+    });
+  } catch (error) {
+    res.status(500).json({
+      code: 500,
+      message: 'Lỗi máy chủ nội bộ',
+      error: error.message
+    });
+  }
+};
+

@@ -44,4 +44,5 @@ router.get('/total-doodle', controller.totalDoodle);
 router.get('/total-view', controller.totalViewAllTimeByMonth);
 router.get('/total-like', controller.totalLikeAllTimeByMonth);
 router.get('/random', controller.random)
+router.get('/game', controller.game)
 module.exports = router;
