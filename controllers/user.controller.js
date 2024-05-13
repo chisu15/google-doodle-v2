@@ -118,11 +118,10 @@ module.exports.edit = async (req, res) => {
       });
       return;
     }
+    await Users.findByIdAndUpdate(id, {
+      ...req.body
+    })
 
-    user.fullName = req.body.fullName;
-    user.email = req.body.email;
-
-    await user.save();
     return res.json({
       code: 200,
       message: 'Update user successful!',
@@ -184,12 +183,20 @@ module.exports.changePassword = async (req, res) => {
         message: 'Incorrect password!',
       });
     }
-    const newPassword = md5(req.body.new_password);
-    await user.updateOne({ password: newPassword });
-    return res.json({
-      code: 200,
-      message: 'Change password successful!',
-    });
+    if(!req.body.new_password || req.body.new_password == "") {
+      return res.json({
+        code:400,
+        message: "Vui lòng nhập mật khẩu mới",
+      })
+    }
+    else{
+      const newPassword = md5(req.body.new_password);
+      await user.updateOne({ password: newPassword });
+      return res.json({
+        code: 200,
+        message: 'Change password successful!',
+      });
+    }
   } catch (error) {
     return res.json({
       code: 500,
