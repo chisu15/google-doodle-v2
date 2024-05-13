@@ -481,9 +481,8 @@ module.exports.game = async (req, res) => {
     const gameDoodle = await Doodle.find({
       format: 'game'  // Thay đổi điều kiện tìm kiếm để lấy các doodle có định dạng là game
     });
-    res.json({
-      gameDoodle
-    });
+    res.json(gameDoodle);
+
   } catch (error) {
     res.status(500).json({
       code: 500,
