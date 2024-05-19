@@ -69,12 +69,11 @@ module.exports.login = async (req, res) => {
       code: 200,
       message: 'Login success!',
       user: {
+        id: user.id,
         fullName: user.fullName,
         email: user.email,
         token: user.token,
       }
-
-
     });
   } catch (error) {
     console.error(error);
