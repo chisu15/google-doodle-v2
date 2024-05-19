@@ -11,6 +11,7 @@ router.get('/', controller.index);
 router.get('/detail/:id', controller.detail);
 router.patch('/change-password/:id', controller.changePassword);
 router.patch('/:id', controller.edit);
+router.get("/favorite/:id", controller.getUserFavorite);
 router.patch('/favorite/:id', controller.favorite);
 router.delete('/:id', controller.delete);
 

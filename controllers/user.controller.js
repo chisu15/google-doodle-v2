@@ -240,3 +240,25 @@ module.exports.favorite = async (req, res) => {
   }
 };
 
+// [GET] GET USER FAVORITE
+module.exports.getUserFavorite = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await Users.findById(id);
+    if (!user) {
+      return res.json({
+        code: 404,
+        message: 'Người dùng không tồn tại!',
+      });
+    }
+    return res.json(user.favorite);
+  } catch (error) {
+    console.log(error);
+    return res.json({
+      code: 500,
+      error: error.message,
+      message: 'Lỗi máy chủ nội bộ',
+    });
+  }
+};
+
