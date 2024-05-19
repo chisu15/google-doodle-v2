@@ -2,12 +2,14 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 require('dotenv').config();
-
+const passport = require("passport");
 const app = express();
 const port = process.env.PORT;
 const db = require('./config/db');
+
 db.connect();
 app.use(cors());
+app.use(passport.initialize());
 
 app.use(bodyParser.json());
 

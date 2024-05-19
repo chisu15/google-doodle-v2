@@ -48,18 +48,18 @@ module.exports.register = async (req, res) => {
 // [POST] version/user/login
 module.exports.login = async (req, res) => {
   try {
-    const infoUser = {
+    const infoLogin = {
       email: req.body.email,
       password: md5(req.body.password),
     };
-    const user = await Users.findOne({ email: infoUser.email });
+    const user = await Users.findOne({ email: infoLogin.email });
     if (!user) {
       return res.json({
         code: 404,
         message: 'Email not found!',
       });
     }
-    if (user.password !== infoUser.password) {
+    if (user.password !== infoLogin.password) {
       return res.json({
         code: 400,
         message: 'Password is incorrect!',
@@ -68,7 +68,13 @@ module.exports.login = async (req, res) => {
     return res.json({
       code: 200,
       message: 'Login success!',
-      token: user.token,
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        token: user.token,
+      }
+
+
     });
   } catch (error) {
     console.error(error);
@@ -234,3 +240,4 @@ module.exports.favorite = async (req, res) => {
     });
   }
 };
+

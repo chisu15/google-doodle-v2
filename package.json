@@ -25,6 +25,8 @@
     "md5": "^2.3.0",
     "moment": "^2.30.1",
     "multer": "^1.4.5-lts.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
     "path": "^0.12.7",
     "slugify": "^1.6.6",
     "streamifier": "^0.1.1",
