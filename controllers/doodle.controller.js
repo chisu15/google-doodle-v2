@@ -447,3 +447,31 @@ module.exports.totalLikeAllTimeByMonth = async (req, res) => {
     });
   }
 };
+
+// [GET] RANDOM DOODLE
+
+module.exports.random = async (req, res) => {
+  try {
+    const randomDoodle = await Doodle.aggregate([
+      { $sample: { size: 1 } }
+    ]);
+
+    if (!randomDoodle.length) {
+      return res.status(404).json({
+        code: 404,
+        message: 'Không tìm thấy doodle ngẫu nhiên'
+      });
+    }
+
+    res.json({
+      code: 200,
+      data: randomDoodle[0]
+    });
+  } catch (error) {
+    res.status(500).json({
+      code: 500,
+      message: 'Lỗi máy chủ nội bộ',
+      error: error.message
+    });
+  }
+};

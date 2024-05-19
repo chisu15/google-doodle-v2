@@ -43,4 +43,5 @@ router.delete('/delete/:id', controller.delete);
 router.get('/total-doodle', controller.totalDoodle);
 router.get('/total-view', controller.totalViewAllTimeByMonth);
 router.get('/total-like', controller.totalLikeAllTimeByMonth);
+router.get('/random', controller.random)
 module.exports = router;
