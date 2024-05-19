@@ -1,7 +1,7 @@
 const md5 = require('md5');
 const Users = require('../models/user.model');
 const generate = require('../helpers/generate');
-
+const Doodle = require('../models/doodle.model');
 // [POST] version/user/register
 module.exports.register = async (req, res) => {
   try {
@@ -251,7 +251,10 @@ module.exports.getUserFavorite = async (req, res) => {
         message: 'Người dùng không tồn tại!',
       });
     }
-    return res.json(user.favorite);
+    const doodles = await Doodle.find({
+      '_id': { $in: user.favorite }
+    });
+    return res.json(doodles);
   } catch (error) {
     console.log(error);
     return res.json({
